@@ -10,11 +10,10 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS for Professional Styling (Theme Adaptive)
-# Uses var(--...) to ensure visibility in both Light and Dark modes
+# Custom CSS for Professional Styling & Square Buttons
 st.markdown("""
 <style>
-    /* Card styling for metrics */
+    /* 1. Card styling for metrics */
     div[data-testid="stMetric"] {
         background-color: var(--secondary-background-color);
         border: 1px solid var(--text-color);
@@ -22,9 +21,33 @@ st.markdown("""
         border-radius: 5px;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
     }
-    /* Sidebar styling */
+    
+    /* 2. Sidebar Background */
     section[data-testid="stSidebar"] {
         background-color: var(--secondary-background-color);
+    }
+
+    /* 3. SQUARE BUTTONS (Styling the Radio Selection) */
+    div.row-widget.stRadio > div {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    div.row-widget.stRadio > div[role="radiogroup"] > label {
+        background-color: transparent;
+        border: 1px solid var(--text-color);
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 4px; 
+        text-align: center;
+        transition: background-color 0.3s;
+    }
+    div.row-widget.stRadio > div[role="radiogroup"] > label:hover {
+        background-color: rgba(128, 128, 128, 0.1);
+    }
+    /* Highlight the selected button */
+    div.row-widget.stRadio > div[role="radiogroup"] > label[data-baseweb="radio"] > div:first-child {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -40,28 +63,22 @@ def load_and_prep_data():
         if 'Post_Date' in df.columns:
             df['Post_Date'] = pd.to_datetime(df['Post_Date'])
 
-        # --- DATA ENRICHMENT FOR RUBRIC COMPLIANCE (Topic 5) ---
-        # The prompt requires ROI and Engagement Rates.
-        # We calculate these if they don't explicitly exist.
-        
+        # --- DATA ENRICHMENT ---
         # 1. Total Interactions
         if 'Total_Interactions' not in df.columns:
-            # Summing available interaction columns
             cols = [c for c in ['Likes', 'Shares', 'Comments'] if c in df.columns]
             df['Total_Interactions'] = df[cols].sum(axis=1)
 
-        # 2. Engagement Rate (Interactions / Views)
+        # 2. Engagement Rate
         if 'Engagement_Rate' not in df.columns:
-             # Avoid division by zero
             df['Engagement_Rate'] = (df['Total_Interactions'] / df['Views'].replace(0, 1)) * 100
 
-        # 3. ROI Calculation (Simulated for Assignment Requirements if missing)
-        # Assumption: CPM (Cost Per Mille) model for Ad Spend and Value per Engagement for Revenue
+        # 3. ROI Calculation (Simulated)
         if 'Ad_Spend' not in df.columns:
-            df['Ad_Spend'] = (df['Views'] / 1000) * 5.00  # $5 CPM assumption
+            df['Ad_Spend'] = (df['Views'] / 1000) * 5.00  
         
         if 'Revenue_Generated' not in df.columns:
-            df['Revenue_Generated'] = (df['Total_Interactions'] * 0.50) # $0.50 value per interaction
+            df['Revenue_Generated'] = (df['Total_Interactions'] * 0.50)
 
         if 'ROI' not in df.columns:
             df['ROI'] = ((df['Revenue_Generated'] - df['Ad_Spend']) / df['Ad_Spend'].replace(0, 1)) * 100
@@ -74,7 +91,7 @@ def load_and_prep_data():
 df = load_and_prep_data()
 
 if df is None:
-    st.error("Error: 'Cleaned_Viral_Social_Media_Trends.csv' not found. Please ensure the file is in the directory.")
+    st.error("Error: 'Cleaned_Viral_Social_Media_Trends.csv' not found.")
     st.stop()
 
 # --- 3. SIDEBAR NAVIGATION & FILTERS ---
@@ -86,9 +103,8 @@ page = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.header("Global Filters")
-st.sidebar.caption("Leave filters blank to select all.")
 
-# Filters (Default to empty/None for "No Filter" startup state)
+# Filters
 selected_platform = st.sidebar.multiselect(
     "Filter by Platform",
     options=df['Platform'].unique(),
@@ -102,7 +118,6 @@ selected_region = st.sidebar.multiselect(
 )
 
 # Apply Filter Logic
-# If selection is empty, we keep the original dataframe (Show All)
 df_filtered = df.copy()
 
 if selected_platform:
@@ -118,13 +133,11 @@ if page == "Executive Overview":
     st.title("Executive Overview")
     st.markdown("High-level performance metrics and key performance indicators (KPIs).")
     
-    # KPI Calculation
     total_views = df_filtered['Views'].sum()
     avg_engagement_rate = df_filtered['Engagement_Rate'].mean()
     total_spend = df_filtered['Ad_Spend'].sum()
     avg_roi = df_filtered['ROI'].mean()
 
-    # Top KPI Cards 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Impressions", f"{total_views:,.0f}")
     col2.metric("Avg Engagement Rate", f"{avg_engagement_rate:.2f}%")
@@ -133,7 +146,6 @@ if page == "Executive Overview":
     
     st.markdown("---")
     
-    # Trend Chart
     st.subheader("Performance Trends Over Time")
     if 'Post_Date' in df_filtered.columns:
         daily_trends = df_filtered.groupby('Post_Date')[['Views', 'Total_Interactions']].sum().reset_index()
@@ -143,16 +155,15 @@ if page == "Executive Overview":
         fig_line.update_layout(height=450, legend_title_text='Metric')
         st.plotly_chart(fig_line, use_container_width=True)
 
-# === TAB 2: CAMPAIGN & ROI ANALYSIS (Aligns with Topic 5 Requirements) ===
+# === TAB 2: CAMPAIGN & ROI ANALYSIS (IMPROVED) ===
 elif page == "Campaign & ROI Analysis":
     st.title("Campaign Effectiveness & ROI")
-    st.markdown("Analysis of campaign performance and return on investment[cite: 31, 33].")
+    st.markdown("Analysis of campaign performance and return on investment.")
     
     c1, c2 = st.columns([1, 1])
     
     with c1:
         st.subheader("ROI by Content Category")
-        # Comparing Campaign Performance 
         roi_by_cat = df_filtered.groupby('Content_Type')[['ROI', 'Ad_Spend']].mean().reset_index()
         fig_bar_roi = px.bar(roi_by_cat, x='Content_Type', y='ROI', 
                              color='ROI', color_continuous_scale='RdBu',
@@ -161,18 +172,60 @@ elif page == "Campaign & ROI Analysis":
 
     with c2:
         st.subheader("Cost Efficiency Analysis")
-        # Bubble chart to see Ad Spend vs Views vs ROI
-        fig_bubble = px.scatter(df_filtered, x='Ad_Spend', y='Views',
-                                size='ROI', color='Content_Type',
+        
+        # --- FIX: REMOVE EXTREME OUTLIERS FOR VISUALIZATION ---
+        # We calculate the 95th percentile. Any ROI above this is likely an anomaly 
+        # (or so high it skews the chart) and is hidden from this specific view.
+        upper_limit = df_filtered['ROI'].quantile(0.95)
+        lower_limit = df_filtered['ROI'].quantile(0.05)
+        
+        # Create a temporary dataframe just for this chart
+        df_chart = df_filtered[
+            (df_filtered['ROI'] < upper_limit) & 
+            (df_filtered['ROI'] > lower_limit)
+        ]
+        
+        fig_bubble = px.scatter(df_chart, 
+                                x='Ad_Spend', 
+                                y='ROI',
+                                size='Views',
+                                color='Content_Type',
                                 hover_name='Hashtag',
-                                title="Ad Spend vs. Views (Size = ROI)")
+                                title=f"Ad Spend vs. ROI (Outliers Removed)",
+                                # Adding opacity helps see overlapping bubbles
+                                opacity=0.7)
+        
+        # Add a zero line for reference
+        fig_bubble.add_hline(y=0, line_dash="dash", line_color="gray")
+        
         st.plotly_chart(fig_bubble, use_container_width=True)
+        st.caption(f"Note: Extreme outliers (Top/Bottom 5%) removed to improve chart readability.")
 
     st.subheader("Top Performing Hashtags (Campaigns)")
-    # Identifying content that drives highest engagement [cite: 30]
+    # We still use the full dataset here to show the true leaders
     top_campaigns = df_filtered.groupby('Hashtag')[['Views', 'Engagement_Rate', 'ROI']].mean().reset_index()
     top_campaigns = top_campaigns.sort_values(by='ROI', ascending=False).head(10)
-    st.dataframe(top_campaigns.style.format("{:.2f}"), use_container_width=True)
+    
+    st.dataframe(
+        top_campaigns.style.format({
+            "Views": "{:,.0f}", 
+            "Engagement_Rate": "{:.2f}", 
+            "ROI": "{:.2f}"
+        }), 
+        use_container_width=True
+    )
+    
+    # --- FIX START: Specific Formatting ---
+    # We apply formatting only to specific numeric columns using a dictionary
+    st.dataframe(
+        top_campaigns.style.format({
+            "Views": "{:,.0f}", 
+            "Engagement_Rate": "{:.2f}", 
+            "ROI": "{:.2f}"
+        }), 
+        use_container_width=True
+    )
+    # --- FIX END ---
 
 # === TAB 3: PLATFORM PERFORMANCE ===
 elif page == "Platform Performance":
@@ -189,7 +242,6 @@ elif page == "Platform Performance":
         
     with c2:
         st.subheader("Engagement Quality")
-        # Scatter plot for correlation
         fig_scatter = px.scatter(df_filtered, x='Views', y='Total_Interactions', color='Platform',
                                  title="Views vs. Total Interactions")
         st.plotly_chart(fig_scatter, use_container_width=True)
@@ -199,7 +251,6 @@ elif page == "Geographic Analytics":
     st.title("Geographic Distribution")
     
     st.subheader("Regional Performance Hierarchy")
-    # Treemap [cite: 10]
     fig_tree = px.treemap(df_filtered, path=['Region', 'Platform'], values='Views',
                           color='Engagement_Rate', color_continuous_scale='Blues',
                           title="Views by Region (Color = Engagement Rate)")
@@ -213,7 +264,6 @@ elif page == "Data Explorer":
     
     st.dataframe(df_filtered, use_container_width=True)
     
-    # Download Button
     csv = df_filtered.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="Download Filtered CSV",

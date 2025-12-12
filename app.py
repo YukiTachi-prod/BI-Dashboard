@@ -24,6 +24,33 @@ st.markdown("""
     .stApp {
         background-color: #F4F7F6; /* Very light cool grey/green tint */
     }
+    
+    /* FORCE BLACK TEXT FOR ALL ELEMENTS (Override Dark Mode) */
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
+    .stApp p, .stApp span, .stApp div, .stApp label,
+    .stMarkdown, .stMarkdown p, .stMarkdown span,
+    .stDataFrame, .stDataFrame td, .stDataFrame th,
+    [data-testid="stMarkdownContainer"],
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] span,
+    [data-testid="stText"],
+    .element-container {
+        color: #000000 !important;
+    }
+    
+    /* Force black text in dataframes */
+    .dataframe, .dataframe tbody tr td, .dataframe thead tr th {
+        color: #000000 !important;
+    }
+    
+    /* Force black text in tabs */
+    .stTabs [data-baseweb="tab"] {
+        color: #000000 !important;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        color: #4CAF50 !important;
+    }
 
     /* B. SIDEBAR STYLING (Green Gradient) */
     section[data-testid="stSidebar"] {
@@ -69,32 +96,47 @@ st.markdown("""
     /* 1. Unselected Buttons (Translucent White on Gradient Sidebar) */
     section[data-testid="stSidebar"] .stButton > button[kind="secondary"] {
         background-color: rgba(255, 255, 255, 0.15); /* Glass effect */
-        color: white;
+        color: white !important;
         border: 1px solid rgba(255,255,255, 0.2);
         border-radius: 12px; 
         height: 3em;
         font-weight: 700;
         backdrop-filter: blur(5px); /* Blurs the gradient behind the button */
-        transition: all 0.2s ease;
+        transition: background-color 0.2s ease, color 0.2s ease;
     }
     
     section[data-testid="stSidebar"] .stButton > button[kind="secondary"]:hover {
         background-color: rgba(255,255,255, 0.3);
-        transform: translateY(-2px);
+    }
+    
+    /* Force white text for unselected buttons */
+    section[data-testid="stSidebar"] .stButton > button[kind="secondary"] p,
+    section[data-testid="stSidebar"] .stButton > button[kind="secondary"] span,
+    section[data-testid="stSidebar"] .stButton > button[kind="secondary"] div {
+        color: white !important;
     }
 
-    /* 2. Selected Buttons (Pure White) */
+    /* 2. Selected Buttons (Pure White with Black Text) */
     section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
         background-color: white !important;
         border: none !important;
-        color: #2E7D32 !important; /* Dark Green Text for contrast */
+        color: #000000 !important; /* Black text for selected buttons */
         border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        height: 3em;
         font-weight: 800;
+        transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     section[data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
         background-color: #F1F8E9 !important;
+        color: #000000 !important; /* Keep black text on hover */
+    }
+    
+    /* Force black text for selected buttons - target all child elements */
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"] p,
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"] span,
+    section[data-testid="stSidebar"] .stButton > button[kind="primary"] div {
+        color: #000000 !important;
     }
 
     /* E. TAB STYLING (Top Navigation) */
@@ -109,7 +151,7 @@ st.markdown("""
         border-radius: 15px 15px 0px 0px;
         gap: 1px;
         padding: 10px 20px;
-        color: #8898aa;
+        color: #000000 !important;
         border: none;
         font-weight: 600;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.02);
@@ -120,6 +162,26 @@ st.markdown("""
         color: #4CAF50 !important; /* Active tab is Green */
         border-bottom: 4px solid #4CAF50;
     }
+    
+    /* Force black text in tab content */
+    .stTabs [data-baseweb="tab-panel"] * {
+        color: #000000 !important;
+    }
+    
+    /* Except for sidebar which stays white */
+    section[data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    
+    /* But sidebar labels and text inputs need special handling */
+    section[data-testid="stSidebar"] h1, 
+    section[data-testid="stSidebar"] h2, 
+    section[data-testid="stSidebar"] h3, 
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] p {
+        color: white !important;
+    }
 
     /* F. PLOTLY CHART CONTAINERS */
     .stPlotlyChart {
@@ -127,6 +189,15 @@ st.markdown("""
         border-radius: 20px;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         padding: 15px;
+    }
+    
+    /* Force Plotly chart text to be black */
+    .stPlotlyChart text {
+        fill: #000000 !important;
+    }
+    
+    .js-plotly-plot .plotly text {
+        fill: #000000 !important;
     }
     
     /* G. CLEANUP */
@@ -305,11 +376,13 @@ with tab1:
                            title="Impressions vs. Interactions Timeline")
         
         # Ensure lines are distinct colors (Green vs Blue/Orange)
-        fig_line.update_layout(height=450, 
-                               plot_bgcolor='rgba(0,0,0,0)', 
-                               paper_bgcolor='rgba(0,0,0,0)',
-                               font_family="Nunito",
-                               font_color="#2D3436")
+        fig_line.update_layout(
+            height=450, 
+            plot_bgcolor='rgba(0,0,0,0)', 
+            paper_bgcolor='rgba(0,0,0,0)',
+            font_family="Nunito",
+            font_color="#000000"  # Force black text
+        )
         fig_line.update_xaxes(showgrid=False)
         fig_line.update_yaxes(showgrid=True, gridcolor='#ECEFF1')
         st.plotly_chart(fig_line, use_container_width=True)
@@ -331,7 +404,12 @@ with tab2:
                              color='Content_Type', # <--- Distinct Colors!
                              title="Average Return on Investment (ROI) by Category")
         
-        fig_bar_roi.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Nunito")
+        fig_bar_roi.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)', 
+            paper_bgcolor='rgba(0,0,0,0)', 
+            font_family="Nunito",
+            font_color="#000000"
+        )
         st.plotly_chart(fig_bar_roi, use_container_width=True)
 
     with c2:
@@ -356,7 +434,12 @@ with tab2:
                                 opacity=0.8)
         
         fig_bubble.add_hline(y=0, line_dash="dash", line_color="#B0BEC5")
-        fig_bubble.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Nunito")
+        fig_bubble.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)', 
+            paper_bgcolor='rgba(0,0,0,0)', 
+            font_family="Nunito",
+            font_color="#000000"
+        )
         
         st.plotly_chart(fig_bubble, use_container_width=True)
         st.caption(f"Note: Extreme outliers (Top/Bottom 5%) removed to improve chart readability.")
@@ -386,14 +469,24 @@ with tab3:
         # Pie chart will now automatically use the Green/Blue/Orange/Purple/Red mix
         fig_pie = px.pie(df_filtered, names='Platform', values='Views', hole=0.5,
                          title="Distribution of Views by Platform")
-        fig_pie.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Nunito")
+        fig_pie.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)', 
+            paper_bgcolor='rgba(0,0,0,0)', 
+            font_family="Nunito",
+            font_color="#000000"
+        )
         st.plotly_chart(fig_pie, use_container_width=True)
         
     with c2:
         st.subheader("Engagement Quality")
         fig_scatter = px.scatter(df_filtered, x='Views', y='Total_Interactions', color='Platform',
                                  title="Views vs. Total Interactions")
-        fig_scatter.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_family="Nunito")
+        fig_scatter.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)', 
+            paper_bgcolor='rgba(0,0,0,0)', 
+            font_family="Nunito",
+            font_color="#000000"
+        )
         st.plotly_chart(fig_scatter, use_container_width=True)
 
 # === TAB 4: GEOGRAPHIC ANALYTICS ===
@@ -401,11 +494,22 @@ with tab4:
     st.header("Geographic Distribution")
     
     st.subheader("Regional Performance Hierarchy")
-    # Using 'Spectal' or 'Viridis' ensures the treemap boxes aren't all just green
+    # Using 'Viridis' ensures the treemap boxes aren't all just green
+    # Added explicit font color to ensure visibility
     fig_tree = px.treemap(df_filtered, path=['Region', 'Platform'], values='Views',
                           color='Engagement_Rate', color_continuous_scale='Viridis',
                           title="Views by Region (Color = Engagement Rate)")
-    fig_tree.update_layout(height=600, font_family="Nunito")
+    fig_tree.update_layout(
+        height=600, 
+        font_family="Nunito",
+        font_color="#000000",  # Force black text
+        paper_bgcolor='white',
+        plot_bgcolor='white'
+    )
+    fig_tree.update_traces(
+        textfont=dict(color='#000000', size=12),  # Ensure text is visible
+        marker=dict(line=dict(color='#FFFFFF', width=2))  # White borders for better separation
+    )
     st.plotly_chart(fig_tree, use_container_width=True)
 
 # === TAB 5: DATA EXPLORER ===

@@ -213,7 +213,13 @@ st.markdown("""
     .stMultiSelect div[data-baseweb="tag"] {
         background-color: rgba(255,255,255,0.9);
     }
-
+            
+    @media (prefers-color-scheme: dark) {
+    html, body, .stApp, [class*="css"] {
+        background: #F4F7F6 !important;
+        color: #000000 !important;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -222,7 +228,7 @@ st.markdown("""
 def load_and_prep_data():
     try:
         # Load Data
-        df = pd.read_csv('Cleaned_Viral_Social_Media_Trends.csv')
+        df = pd.read_csv('src/Cleaned_Viral_Social_Media_Trends.csv')
         
         # Ensure Date Format
         if 'Post_Date' in df.columns:

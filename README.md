@@ -1,45 +1,43 @@
-Social Media Analytics Dashboard
-A Streamlit dashboard for analyzing social media performance metrics and campaign effectiveness.
+# Social Media Analytics Dashboard
 
-Features
-Executive Overview: Key metrics and performance trends
+A Streamlit-based dashboard for analyzing social media performance, campaign effectiveness, and engagement metrics.
 
-ROI Analysis: Campaign effectiveness and cost efficiency
+## Features
 
-Platform Performance: Cross-channel comparison
+- **Executive Overview**: High-level performance metrics and trends over time.
+- **ROI Analysis**: Evaluate campaign effectiveness and cost efficiency.
+- **Platform Performance**: Compare performance across social media channels.
+- **Geographic Analytics**: Visualize regional performance and engagement.
+- **Data Explorer**: Explore raw data and export filtered datasets.
 
-Geographic Analytics: Regional performance mapping
+## Quick Start
 
-Data Explorer: Raw data exploration and export
+1. **Install dependencies**: pip install streamlit pandas plotly numpy
 
-Quick Start
-Install requirements:
+2. **Prepare data**: Place `Cleaned_Viral_Social_Media_Trends.csv` in the same directory as the dashboard script.
 
-pip install streamlit pandas plotly numpy
+3. **Run the dashboard**: streamlit run src/app.py (unless you are viewing this from the deployed huggingface site)
 
-Place Cleaned_Viral_Social_Media_Trends.csv in the same directory
 
-Run the dashboard:
+## Data Requirements
 
-streamlit run dashboard.py
+The dashboard expects a CSV file with the following columns: Platform, Region, Content_Type, Hashtag, Views, Likes, Shares, Comments, Post_Date
 
-Data Requirements
-CSV file with columns: Platform, Region, Content_Type, Hashtag, Views, Likes, Shares, Comments, Post_Date
 
-Usage
-Use sidebar navigation to switch between analytical views
+## Usage
 
-Apply filters by Platform and Region
+- Navigate between analytical views using the sidebar.
+- Apply filters by **Platform** and **Region** to refine the analysis.
+- Download filtered datasets from the **Data Explorer** tab.
+- Interactive charts support zooming, hovering, and detailed insights.
 
-Download filtered data from Data Explorer tab
+## Technical Notes
 
-Interactive charts support zoom and hover details
+- Engagement metrics and ROI are automatically calculated.
+- Outliers are handled to improve visualization clarity.
+- Fully responsive design suitable for different screen sizes.
+- All data processing is performed locally; no external services are required.
 
-Technical Notes
-Automatically calculates engagement metrics and ROI
 
-Handles outliers in visualizations
 
-Responsive design for all screen sizes
 
-Local data processing only

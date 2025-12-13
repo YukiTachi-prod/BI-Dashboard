@@ -4,13 +4,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 
-# --- 1. CONFIGURATION & STYLING ---
+# config
 st.set_page_config(
     page_title="Social Media Intelligence Dashboard",
     layout="wide"
 )
 
-# --- 2. UI THEME TRANSFORMATION (CSS) ---
+# ui theme
 st.markdown("""
 <style>
     /* IMPORT FONT - 'Nunito' matches the rounded, friendly vibe */

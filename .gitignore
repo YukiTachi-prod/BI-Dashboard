@@ -4,3 +4,6 @@ ourdata.zip
 checkstuff.py
 clean.py
 Viral_Socal_Media_Trends.csv
+src/streamlit_app.py
+.streamlit/
+src/diagnostic.py

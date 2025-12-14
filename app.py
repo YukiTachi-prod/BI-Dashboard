@@ -4,13 +4,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 
-# --- 1. CONFIGURATION & STYLING ---
+# config
 st.set_page_config(
     page_title="Social Media Intelligence Dashboard",
     layout="wide"
 )
 
-# --- 2. UI THEME TRANSFORMATION (CSS) ---
+# ui theme
 st.markdown("""
 <style>
     /* IMPORT FONT - 'Nunito' matches the rounded, friendly vibe */
@@ -213,11 +213,17 @@ st.markdown("""
     .stMultiSelect div[data-baseweb="tag"] {
         background-color: rgba(255,255,255,0.9);
     }
-
+            
+    @media (prefers-color-scheme: dark) {
+    html, body, .stApp, [class*="css"] {
+        background: #F4F7F6 !important;
+        color: #000000 !important;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. DATA LOADING & PRE-PROCESSING ---
+# --- DATA LOADING & PRE-PROCESSING ---
 @st.cache_data
 def load_and_prep_data():
     try:
@@ -270,7 +276,7 @@ px.defaults.color_discrete_sequence = [
     "#00BCD4"  # Cyan
 ]
 
-# --- 4. SIDEBAR LOGIC (SESSION STATE & BUTTONS) ---
+# --- SIDEBAR LOGIC (SESSION STATE & BUTTONS) ---
 st.sidebar.header("Filter Settings")
 
 # 4A. Platform Filter
@@ -328,7 +334,7 @@ if st.sidebar.button("Clear Selection", use_container_width=True):
     st.rerun()
 
 
-# --- 5. APPLY FILTER LOGIC ---
+# --- APPLY FILTER LOGIC ---
 df_filtered = df.copy()
 
 if selected_platform:
@@ -337,7 +343,7 @@ if selected_platform:
 if st.session_state.selected_regions:
     df_filtered = df_filtered[df_filtered['Region'].isin(st.session_state.selected_regions)]
 
-# --- 6. MAIN DASHBOARD CONTENT ---
+# --- MAIN DASHBOARD CONTENT ---
 
 st.title("Social Media Intelligence Dashboard")
 
@@ -375,13 +381,12 @@ with tab1:
                            markers=True, 
                            title="Impressions vs. Interactions Timeline")
         
-        # Ensure lines are distinct colors (Green vs Blue/Orange)
         fig_line.update_layout(
             height=450, 
             plot_bgcolor='rgba(0,0,0,0)', 
             paper_bgcolor='rgba(0,0,0,0)',
             font_family="Nunito",
-            font_color="#000000"  # Force black text
+            font_color="#000000"
         )
         fig_line.update_xaxes(showgrid=False)
         fig_line.update_yaxes(showgrid=True, gridcolor='#ECEFF1')
@@ -398,10 +403,8 @@ with tab2:
         st.subheader("ROI by Content Category")
         roi_by_cat = df_filtered.groupby('Content_Type')[['ROI', 'Ad_Spend']].mean().reset_index()
         
-        # CHANGED: Color by 'Content_Type' (categorical) instead of 'ROI' (numeric)
-        # This forces distinct colors for each bar instead of similar greens
         fig_bar_roi = px.bar(roi_by_cat, x='Content_Type', y='ROI', 
-                             color='Content_Type', # <--- Distinct Colors!
+                             color='Content_Type', 
                              title="Average Return on Investment (ROI) by Category")
         
         fig_bar_roi.update_layout(
@@ -423,7 +426,6 @@ with tab2:
             (df_filtered['ROI'] > lower_limit)
         ]
         
-        # Scatter plot uses the new diverse color palette
         fig_bubble = px.scatter(df_chart, 
                                 x='Ad_Spend', 
                                 y='ROI',
@@ -466,7 +468,6 @@ with tab3:
     
     with c1:
         st.subheader("Share of Voice")
-        # Pie chart will now automatically use the Green/Blue/Orange/Purple/Red mix
         fig_pie = px.pie(df_filtered, names='Platform', values='Views', hole=0.5,
                          title="Distribution of Views by Platform")
         fig_pie.update_layout(
@@ -494,21 +495,19 @@ with tab4:
     st.header("Geographic Distribution")
     
     st.subheader("Regional Performance Hierarchy")
-    # Using 'Viridis' ensures the treemap boxes aren't all just green
-    # Added explicit font color to ensure visibility
     fig_tree = px.treemap(df_filtered, path=['Region', 'Platform'], values='Views',
                           color='Engagement_Rate', color_continuous_scale='Viridis',
                           title="Views by Region (Color = Engagement Rate)")
     fig_tree.update_layout(
         height=600, 
         font_family="Nunito",
-        font_color="#000000",  # Force black text
+        font_color="#000000",
         paper_bgcolor='white',
         plot_bgcolor='white'
     )
     fig_tree.update_traces(
-        textfont=dict(color='#000000', size=12),  # Ensure text is visible
-        marker=dict(line=dict(color='#FFFFFF', width=2))  # White borders for better separation
+        textfont=dict(color='#000000', size=12),
+        marker=dict(line=dict(color='#FFFFFF', width=2))
     )
     st.plotly_chart(fig_tree, use_container_width=True)
 
